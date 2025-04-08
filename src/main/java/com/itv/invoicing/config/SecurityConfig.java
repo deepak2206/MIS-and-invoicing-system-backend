@@ -38,9 +38,9 @@ public class SecurityConfig
 						.requestMatchers("/register", "/login")
 						.permitAll()
 						.anyRequest().authenticated())
-//				.formLogin(Customizer.withDefaults())
-				.httpBasic(Customizer.withDefaults()) // Enable Basic Auth (Prevents HTML response)
-                .formLogin(form -> form.disable()) // Disable Form Login (Removes HTML login page)
+				.formLogin(Customizer.withDefaults())
+//				.httpBasic(Customizer.withDefaults()) // Enable Basic Auth (Prevents HTML response)
+//                .formLogin(form -> form.disable()) // Disable Form Login (Removes HTML login page)
                 .sessionManagement(session->
                 		session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))		
                 
