@@ -10,6 +10,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -38,11 +39,11 @@ public class SecurityConfig
 						.requestMatchers("/api/users/register", "/api/users/login")
 						.permitAll()
 						.anyRequest().authenticated())
-//				.formLogin(Customizer.withDefaults())
-				.httpBasic(Customizer.withDefaults()) // Enable Basic Auth (Prevents HTML response)
-                .formLogin(form -> form.disable()) // Disable Form Login (Removes HTML login page)
-//                .sessionManagement(session->
-//                		session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))		
+				.formLogin(Customizer.withDefaults())
+//				.httpBasic(Customizer.withDefaults()) // Enable Basic Auth (Prevents HTML response)
+//                .formLogin(form -> form.disable()) // Disable Form Login (Removes HTML login page)
+                .sessionManagement(session->
+                		session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))		
                 
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
