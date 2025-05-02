@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
 	    registry.addMapping("/**")
 	        .allowedOriginPatterns(
 	            "http://localhost:5173",
-	            "https://internshipproject-frontend.onrender.com"
+	            "https://mis-frontend-yvxu.onrender.com"
 	        )
 	        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 	        .allowedHeaders("*")
