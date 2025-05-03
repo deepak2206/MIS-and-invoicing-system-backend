@@ -1,5 +1,6 @@
 package com.example.itvinternship.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID; // ✅ For token generation
@@ -86,18 +87,36 @@ public class AuthController {
     }
 
 
+//    @PostMapping("/login")
+//    public String login(@RequestBody User loginUser) {
+//        Optional<User> userOptional = userRepository.findByEmail(loginUser.getEmail());
+//        if (userOptional.isPresent()) {
+//            User user = userOptional.get();
+//            if (passwordEncoder.matches(loginUser.getPasswordHash(), user.getPasswordHash())) {
+//                return jwtService.generateToken(user.getEmail());
+//            }
+//        }
+//        return "Error: Invalid email or password.";
+//    }
+//    
+    
     @PostMapping("/login")
-    public String login(@RequestBody User loginUser) {
+    public ResponseEntity<?> login(@RequestBody User loginUser) {
         Optional<User> userOptional = userRepository.findByEmail(loginUser.getEmail());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(loginUser.getPasswordHash(), user.getPasswordHash())) {
-                return jwtService.generateToken(user.getEmail());
+                String token = jwtService.generateToken(user.getEmail());
+                Map<String, String> response = new HashMap<>();
+                response.put("token", token);
+                return ResponseEntity.ok(response);
             }
         }
-        return "Error: Invalid email or password.";
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Invalid email or password.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
-    
+
  
     @Autowired
     private UserService userService;
