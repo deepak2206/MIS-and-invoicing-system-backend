@@ -19,7 +19,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // 👇 Very important: tells Spring to use your authentication
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
@@ -31,14 +30,17 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/auth/forgot-password", "/api/auth/reset-password/**").permitAll()
+                .requestMatchers(
+                    "/api/auth/**",
+                    "/api/chains/**",
+                    "/api/groups/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
+            .formLogin(Customizer.withDefaults()) // ✅ Enable form login
             .sessionManagement(sess -> sess
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .formLogin(form -> form.disable())
-            .httpBasic(httpBasic -> httpBasic.disable());
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // ✅ Required for HttpSession
+            );
 
         return http.build();
     }
