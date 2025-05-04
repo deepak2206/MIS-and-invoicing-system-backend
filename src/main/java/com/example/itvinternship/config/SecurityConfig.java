@@ -35,11 +35,12 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // ✅ use this
             )
             .formLogin(form -> form.disable())
             .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }
+
 }

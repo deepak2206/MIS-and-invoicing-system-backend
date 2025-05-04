@@ -28,12 +28,9 @@ import com.example.itvinternship.service.UserService;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-	
-
 	@Autowired
 	private JavaMailSender mailSender;
 
-	
     @Autowired
     private UserRepository userRepository;
 
@@ -44,14 +41,15 @@ public class AuthController {
 
     @PostMapping("/register")
     public String register(@RequestBody User user) {
+    	System.out.println("Received Registration: " + user.getEmail());
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return "Error: Email already registered.";
         }
         user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
         user.setRole(user.getRole() != null ? user.getRole() : "USER");
-        user.setStatus(User.Status.inactive); // ✅ Fully qualify the enum
+        user.setStatus(User.Status.active); 
 
-        user.setResetToken(UUID.randomUUID().toString()); // Generate token
+        user.setResetToken(UUID.randomUUID().toString()); 
         userRepository.save(user);
 
         // Send Verification Email
