@@ -19,10 +19,10 @@ public class JwtService {
     }
     public String extractUsername(String token) {
         return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+            .setSigningKey(SECRET_KEY)
+            .parseClaimsJws(token)
+            .getBody()
+            .getSubject();
     }
 
 }

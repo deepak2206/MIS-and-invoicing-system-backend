@@ -28,6 +28,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private UserRepository userRepository;
 
+    // ✅ Skip filter for /api/auth/**
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/auth/");
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -36,7 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            String email = jwtService.extractUsername(token); // new method you’ll add
+            String email = jwtService.extractUsername(token); // Make sure this method exists
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User user = userRepository.findByEmail(email).orElse(null);
