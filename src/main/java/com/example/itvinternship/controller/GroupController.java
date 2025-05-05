@@ -25,7 +25,7 @@ import com.example.itvinternship.service.GroupService;
 @RequestMapping("/api/groups")
 @CrossOrigin(origins = {
 		  "http://localhost:5173",
-		  "https://groupmanagement-frontend.onrender.com"
+		  "https://mis-and-invoicing-system-frontend.onrender.com"
 		})
 public class GroupController {
 
