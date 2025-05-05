@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +22,8 @@ import com.example.itvinternship.model.Chain;
 import com.example.itvinternship.model.Group;
 import com.example.itvinternship.repo.ChainRepository;
 import com.example.itvinternship.repo.GroupRepository;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/chains")
@@ -39,19 +42,41 @@ public class ChainController {
 	@Autowired
 	GroupRepository groupRepository;
 
-	@PostMapping
-	public ResponseEntity<?> addChain(@RequestBody Chain chain)
-	{
-		if(chainRepository.existsByGstnNo(chain.getGstnNo())) {
-			return ResponseEntity.badRequest().body("GSTN already exists.");	}
-		chain.setCreatedAt(LocalDateTime.now());
-		chain.setUpdatedAt(LocalDateTime.now());
-		
-		chainRepository.save(chain);
-		return ResponseEntity.ok("Company added Successfully");
-
+//	@PostMapping
+//	public ResponseEntity<?> addChain(@RequestBody Chain chain)
+//	{
+//		if(chainRepository.existsByGstnNo(chain.getGstnNo())) {
+//			return ResponseEntity.badRequest().body("GSTN already exists.");	}
+//		chain.setCreatedAt(LocalDateTime.now());
+//		chain.setUpdatedAt(LocalDateTime.now());
+//		
+//		chainRepository.save(chain);
+//		return ResponseEntity.ok("Company added Successfully");
+//
+//	
+//	}
 	
+	
+	@PostMapping
+	public ResponseEntity<?> addChain(@RequestBody Chain chain, HttpSession session) {
+	    Object user = session.getAttribute("user");
+	    System.out.println("Logged in user: " + user);
+
+	    if (user == null) {
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authenticated");
+	    }
+
+	    if (chainRepository.existsByGstnNo(chain.getGstnNo())) {
+	        return ResponseEntity.badRequest().body("GSTN already exists.");
+	    }
+
+	    chain.setCreatedAt(LocalDateTime.now());
+	    chain.setUpdatedAt(LocalDateTime.now());
+	    chainRepository.save(chain);
+
+	    return ResponseEntity.ok("Company added Successfully");
 	}
+
 	
 	@GetMapping
 	public List<Chain> getAllChains()
