@@ -1,71 +1,59 @@
+// ✅ AuthController.java
 package com.example.itvinternship.controller;
 
-
-import java.util.Optional;
-
-
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.itvinternship.model.User;
-import com.example.itvinternship.model.User.Status;
 import com.example.itvinternship.repo.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import jakarta.servlet.http.HttpSession;
+import java.util.Map;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(
+    origins = {
+        "http://localhost:5173",
+        "https://mis-and-invoicing-system-frontend.onrender.com"
+    },
+    allowCredentials = "true"
+)
 public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private HttpSession session;
-
-    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists.");
-        }
-        user.setPasswordHash(encoder.encode(user.getPasswordHash()));
-        user.setStatus(Status.active);
-        userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully.");
-    }
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User loginUser) {
-        Optional<User> userOpt = userRepository.findByEmail(loginUser.getEmail());
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials, HttpSession session) {
+        String email = credentials.get("email");
+        String password = credentials.get("passwordHash");
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            if (encoder.matches(loginUser.getPasswordHash(), user.getPasswordHash())) {
-                session.setAttribute("user", user);
-                return ResponseEntity.ok(user);
+            if (passwordEncoder.matches(password, user.getPasswordHash())) {
+                session.setAttribute("email", email);
+                return ResponseEntity.ok("Login successful");
             }
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+        return ResponseEntity.status(401).body("Invalid credentials");
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate();
-        return ResponseEntity.ok("Logged out successfully.");
+        return ResponseEntity.ok("Logged out");
     }
 
     @GetMapping("/current-user")
-    public ResponseEntity<?> currentUser() {
-        User user = (User) session.getAttribute("user");
-        return ResponseEntity.ok(user);
+    public ResponseEntity<?> currentUser(HttpSession session) {
+        String email = (String) session.getAttribute("email");
+        return email != null ? ResponseEntity.ok(email) : ResponseEntity.status(401).body("Not logged in");
     }
 }
