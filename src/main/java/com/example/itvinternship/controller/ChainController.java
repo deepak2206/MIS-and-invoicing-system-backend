@@ -1,125 +1,73 @@
 package com.example.itvinternship.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.itvinternship.model.Chain;
-import com.example.itvinternship.model.Group;
-import com.example.itvinternship.repo.ChainRepository;
-import com.example.itvinternship.repo.GroupRepository;
-
-import jakarta.servlet.http.HttpSession;
+import com.example.itvinternship.service.ChainService;
 
 @RestController
 @RequestMapping("/api/chains")
-@CrossOrigin(
-	    origins = {
-	        "http://localhost:5173",
-	        "https://mis-and-invoicing-system-frontend.onrender.com"
-	    },
-	    allowCredentials = "true"
-	)
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "https://mis-and-invoicing-system-frontend.onrender.com"
+}, allowCredentials = "true")
 public class ChainController {
 
-	@Autowired
-	ChainRepository chainRepository;
+    @Autowired
+    private ChainService chainService;
 
-	@Autowired
-	GroupRepository groupRepository;
-
-//	@PostMapping
-//	public ResponseEntity<?> addChain(@RequestBody Chain chain)
-//	{
-//		if(chainRepository.existsByGstnNo(chain.getGstnNo())) {
-//			return ResponseEntity.badRequest().body("GSTN already exists.");	}
-//		chain.setCreatedAt(LocalDateTime.now());
-//		chain.setUpdatedAt(LocalDateTime.now());
-//		
-//		chainRepository.save(chain);
-//		return ResponseEntity.ok("Company added Successfully");
-//
-//	
-//	}
-	
-	
-	@PostMapping
-	public ResponseEntity<?> addChain(@RequestBody Chain chain, HttpSession session) {
-	    Object user = session.getAttribute("user");
-	    System.out.println("Logged in user: " + user);
-
-	    if (user == null) {
-	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authenticated");
-	    }
-
-	    if (chainRepository.existsByGstnNo(chain.getGstnNo())) {
-	        return ResponseEntity.badRequest().body("GSTN already exists.");
-	    }
-
-	    chain.setCreatedAt(LocalDateTime.now());
-	    chain.setUpdatedAt(LocalDateTime.now());
-	    chainRepository.save(chain);
-
-	    return ResponseEntity.ok("Company added Successfully");
-	}
-
-	
-	@GetMapping
-	public List<Chain> getAllChains()
-	{
-		return chainRepository.findByIsActiveTrue();
-	}
-	
-	@GetMapping("/filter")
-	public List<Chain> getByGroup(@RequestParam String groupName)
-	{
-		return chainRepository.findByGroupGroupNameAndIsActiveTrue(groupName);
-	}
-	
-	@PutMapping("/{id}")
-	 public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Chain updated) {
-        Optional<Chain> chainOpt = chainRepository.findById(id);
-        if (chainOpt.isEmpty()) return ResponseEntity.notFound().build();
-        Chain chain = chainOpt.get();
-        chain.setCompanyName(updated.getCompanyName());
-        chain.setGstnNo(updated.getGstnNo());
-        chain.setGroup(updated.getGroup());
-        chain.setUpdatedAt(LocalDateTime.now());
-        chainRepository.save(chain);
-        return ResponseEntity.ok("Updated");
+    @GetMapping
+    public ResponseEntity<List<Chain>> getAllChains() {
+        return ResponseEntity.ok(chainService.getAllChains());
     }
-	
-	@DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        Optional<Chain> chainOpt = chainRepository.findById(id);
-        if (chainOpt.isEmpty()) return ResponseEntity.notFound().build();
-        Chain chain = chainOpt.get();
 
-        
-
-        chain.setIsActive(false); 
-        chainRepository.save(chain);
-        return ResponseEntity.ok("Deleted");
+    @GetMapping("/group/{groupId}")
+    public ResponseEntity<List<Chain>> getChainsByGroup(@PathVariable Long groupId) {
+        return ResponseEntity.ok(chainService.getChainsByGroup(groupId));
     }
-	
-	@GetMapping("/groups")
-	public List<Group> getAllGroups() {
-	    return groupRepository.findAll();  
-	}
 
+    @PostMapping
+    public ResponseEntity<?> addChain(@RequestBody Map<String, String> req) {
+        String name = req.get("companyName");
+        String gstn = req.get("gstnNo");
+        Long groupId = Long.valueOf(req.get("groupId"));
 
+        if (name == null || gstn == null || groupId == null) {
+            return ResponseEntity.badRequest().body("Missing fields");
+        }
+
+        try {
+            return ResponseEntity.ok(chainService.addChain(name, gstn, groupId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateChain(@PathVariable Long id, @RequestBody Map<String, String> req) {
+        String name = req.get("companyName");
+        String gstn = req.get("gstnNo");
+        Long groupId = Long.valueOf(req.get("groupId"));
+
+        try {
+            return ResponseEntity.ok(chainService.updateChain(id, name, gstn, groupId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteChain(@PathVariable Long id) {
+        try {
+            chainService.softDeleteChain(id);
+            return ResponseEntity.ok("Deleted successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 }
