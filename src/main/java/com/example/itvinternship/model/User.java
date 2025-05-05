@@ -4,38 +4,36 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.sql.Timestamp;
 
+@Table(name = "users")
 @Entity
 @Data
-@Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "full_name", nullable = false, length = 100)
+    @Column(nullable = false)
     private String fullName;
 
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(nullable = false)
     private String passwordHash;
 
     @Column(nullable = false)
     private String role;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Status status = Status.active;
 
-    @Column(name = "created_at", nullable = false, updatable = false, insertable = false,
-            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private Timestamp createdAt;
+  
 
-    public enum Status {
-        active,
-        inactive
-    }
+    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+    
+
+public enum Status {
+    active, inactive
+}
+
 }
