@@ -10,4 +10,6 @@ import com.example.itvinternship.model.Brand;
 @Repository
 public interface BrandRepository extends JpaRepository<Brand, Long> {
     List<Brand> findByIsActiveTrue();
+
+    List<Brand> findByChain_Group_GroupIdAndIsActiveTrue(Long groupId);
 }

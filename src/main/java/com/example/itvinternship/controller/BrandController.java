@@ -52,4 +52,10 @@ public class BrandController {
         brandService.deleteBrand(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @GetMapping("/group/{groupId}")
+    public List<Brand> getBrandsByGroup(@PathVariable Long groupId) {
+        return brandService.getBrandsByGroup(groupId);
+    }
+
 }

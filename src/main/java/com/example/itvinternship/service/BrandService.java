@@ -47,4 +47,8 @@ public class BrandService {
         brand.setActive(false);
         brandRepo.save(brand);
     }
+
+	public List<Brand> getBrandsByGroup(Long groupId) {
+    return brandRepo.findByChain_Group_GroupIdAndIsActiveTrue(groupId);
+}
 }
