@@ -83,7 +83,9 @@ public class ChainController {
     
     @GetMapping("/{id}")
     public ResponseEntity<Chain> getChainById(@PathVariable Long id) {
-        return ResponseEntity.ok(chainService.getChainById(id));
+        Chain chain = chainService.getChainById(id);
+        return ResponseEntity.ok(chain);
     }
+
 
 }

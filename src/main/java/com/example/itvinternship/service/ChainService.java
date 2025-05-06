@@ -69,8 +69,9 @@ public class ChainService {
         chainRepo.save(chain);
     }
 
-	public Object getChainById(Long id) {
-		return chainRepo.findById(id)
-		        .orElseThrow(() -> new RuntimeException("Chain not found"));
-	}
+    public Chain getChainById(Long id) {
+        return chainRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Chain not found"));
+    }
+
 }
