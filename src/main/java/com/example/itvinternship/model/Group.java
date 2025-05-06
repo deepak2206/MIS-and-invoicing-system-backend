@@ -14,7 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "groups")
+@Table(name = "group_master")
 @Getter
 @Setter
 public class Group {
