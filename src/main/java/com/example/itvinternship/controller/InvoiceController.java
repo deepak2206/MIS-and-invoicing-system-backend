@@ -10,7 +10,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/invoices")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = {
+	    "http://localhost:5173",
+	    "https://mis-and-invoicing-system-frontend.onrender.com"
+	}, allowCredentials = "true")
 public class InvoiceController {
 
     @Autowired
