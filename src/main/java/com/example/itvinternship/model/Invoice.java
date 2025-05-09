@@ -1,7 +1,9 @@
 package com.example.itvinternship.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -9,53 +11,34 @@ import java.time.LocalDateTime;
 @Table(name = "invoices")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Unique 4-digit Invoice Number
-    @Column(nullable = false, unique = true)
-    private Integer invoiceNo;
+    @Column(unique = true)
+    private Integer invoiceNo; // 4-digit unique
 
-    // Foreign Key Reference to Estimate
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estimate_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "estimated_id")
     private Estimate estimate;
 
-    // Foreign Key Reference to Chain (Company)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chain_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "chain_id")
     private Chain chain;
 
-    @Column(nullable = false, length = 100)
     private String serviceDetails;
-
-    private Integer qty;
-
-    private Float costPerQty;
-
-    private Float amountPayable;
-
-    private Float amountPaid;
-
-    private Float balance;
-
-    private LocalDate deliveryDate;
+    private int qty;
+    private float costPerQty;
+    private float amountPayable;
+    private float balance;
+    private LocalDateTime dateOfPayment;
+    private LocalDate dateOfService;
 
     @Column(length = 100)
     private String deliveryDetails;
 
     @Column(length = 50)
     private String emailId;
-
-    private LocalDateTime dateOfPayment;
-
-    @PrePersist
-    protected void onCreate() {
-        this.dateOfPayment = LocalDateTime.now();
-    }
 }
