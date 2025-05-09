@@ -44,18 +44,37 @@ public class AuthController {
         return ResponseEntity.ok("User registered successfully.");
     }
 
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody User loginUser) {
+//        Optional<User> userOpt = userRepository.findByEmail(loginUser.getEmail());
+//        if (userOpt.isPresent()) {
+//            User user = userOpt.get();
+//            if (encoder.matches(loginUser.getPasswordHash(), user.getPasswordHash())) {
+//                session.setAttribute("user", user);
+//                return ResponseEntity.ok(user);
+//            }
+//        }
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+//    }
+    
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginUser) {
         Optional<User> userOpt = userRepository.findByEmail(loginUser.getEmail());
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (encoder.matches(loginUser.getPasswordHash(), user.getPasswordHash())) {
-                session.setAttribute("user", user);
+                session.setAttribute("user", user); // force session to exist
                 return ResponseEntity.ok(user);
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
     }
+
+    @GetMapping("/session-check")
+    public ResponseEntity<?> sessionCheck() {
+        return ResponseEntity.ok(session.getAttribute("user") != null ? "Session Active" : "No session");
+    }
+
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
